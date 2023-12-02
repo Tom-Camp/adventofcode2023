@@ -24,7 +24,7 @@ def get_part_b() -> int:
         if matches:
             low = matches[0] if matches[0].isdigit() else replace_with[matches[0]]
             high = matches[-1] if matches[-1].isdigit() else replace_with[matches[-1]]
-        total.append((int(low) * 10) + int(high))
+            total.append((int(low) * 10) + int(high))
     return sum(total)
 
 
