@@ -25,20 +25,44 @@ with open("files/day3", "r") as fp:
 adjacent_plot = get_adjacent_plot()
 
 
-def find_parts() -> int:
-    part_list: list = []
+def get_all_parts() -> tuple[list, dict]:
+    part_sum: list = []
+    part_list: dict = {}
     for y, line in enumerate(lines):
         for part_number in re.finditer(r"\d+", line.strip()):
             for x in range(part_number.start(), part_number.end()):
                 if (x, y) in adjacent_plot:
-                    part_list.append(int(part_number.group()))
+                    for part_x in range(part_number.start(), part_number.end()):
+                        if part_x not in part_list:
+                            part_list[part_x] = {y: part_number.group()}
+                        else:
+                            part_list[part_x][y] = part_number.group()
+                    part_sum.append(int(part_number.group()))
                     break
-    return sum(part_list)
+    return part_sum, part_list
+
+
+def get_gears(parts: dict) -> list:
+    all_stars: list = []
+    for y, line in enumerate(lines):
+        all_stars.extend([(x, y) for x, n in enumerate(line.strip()) if n == "*"])
+    ratio_sums: list = []
+    for star in all_stars:
+        gear_parts: list = []
+        for y in range(star[1] - 1, star[1] + 2):
+            for x in range(star[0] - 1, star[0] + 2):
+                if x in parts and y in parts[x] and parts[x][y] not in gear_parts:
+                    gear_parts.append(parts[x][y])
+        if len(gear_parts) == 2:
+            ratio_sums.append(int(gear_parts[0]) * int(gear_parts[1]))
+    return ratio_sums
 
 
 def main():
-    parts_sum = find_parts()
-    print(parts_sum)
+    parts_sum, part_list = get_all_parts()
+    print(sum(parts_sum))
+    gears = get_gears(parts=part_list)
+    print(sum(gears))
 
 
 if __name__ == "__main__":
