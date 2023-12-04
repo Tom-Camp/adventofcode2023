@@ -34,9 +34,21 @@ def get_all_parts() -> tuple[list, dict]:
                 if (x, y) in adjacent_plot:
                     for part_x in range(part_number.start(), part_number.end()):
                         if part_x not in part_list:
-                            part_list[part_x] = {y: part_number.group()}
+                            part_list[part_x] = {
+                                y: {
+                                    "part": part_number.group(),
+                                    "range": (
+                                        y,
+                                        part_number.start(),
+                                        part_number.end(),
+                                    ),
+                                }
+                            }
                         else:
-                            part_list[part_x][y] = part_number.group()
+                            part_list[part_x][y] = {
+                                "part": part_number.group(),
+                                "range": (y, part_number.start(), part_number.end()),
+                            }
                     part_sum.append(int(part_number.group()))
                     break
     return part_sum, part_list
@@ -49,10 +61,16 @@ def get_gears(parts: dict) -> list:
     ratio_sums: list = []
     for star in all_stars:
         gear_parts: list = []
+        gear_index: list = []
         for y in range(star[1] - 1, star[1] + 2):
             for x in range(star[0] - 1, star[0] + 2):
-                if x in parts and y in parts[x] and parts[x][y] not in gear_parts:
-                    gear_parts.append(parts[x][y])
+                if (
+                    x in parts
+                    and y in parts[x]
+                    and parts[x][y].get("range") not in gear_index
+                ):
+                    gear_parts.append(parts[x][y].get("part"))
+                    gear_index.append(parts[x][y].get("range"))
         if len(gear_parts) == 2:
             ratio_sums.append(int(gear_parts[0]) * int(gear_parts[1]))
     return ratio_sums
