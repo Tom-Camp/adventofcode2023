@@ -1,31 +1,24 @@
-import re
+from typing import List
 
 with open("files/day4", "r") as fp:
     scratch_cards = fp.readlines()
 
 
-def get_winners(card: str) -> list:
-    game_data = card.split(": ", 1)[1].split(" | ")
-    card_numbers = [int(cn) for cn in re.findall(r"\b\d+\b", game_data[0])]
-    my_numbers = [int(mn) for mn in re.findall(r"\b\d+\b", game_data[1])]
-    winners = list(set(card_numbers).intersection(my_numbers))
-    return winners
-
-
-def part_two() -> list:
-    all_cards: list = [c for c in scratch_cards]
-    count: int = 0
-    for card in all_cards:
-        winners = get_winners(card)
-        for w in range(count, len(winners)):
-            all_cards.append(all_cards[w])
-    return all_cards
+def part_two():
+    cards = [1] * len(scratch_cards)
+    for index, line in enumerate(scratch_cards):
+        card_numbers, my_numbers = map(str.split, line.split("|"))
+        copy_count = len(set(card_numbers) & set(my_numbers))
+        for copy in range(index + 1, min(index + 1 + copy_count, len(scratch_cards))):
+            cards[copy] += cards[index]
+    return sum(cards)
 
 
 def part_one() -> list:
     card_totals: list = []
     for card in scratch_cards:
-        winners = get_winners(card)
+        card_numbers, my_numbers = map(str.split, card.split("|"))
+        winners: List[str] = list(set(card_numbers).intersection(my_numbers))
         if winners:
             total: int = 1
             for x in range(2, len(winners) + 1):
@@ -36,9 +29,9 @@ def part_one() -> list:
 
 def main():
     one = part_one()
-    print(sum(one))
+    print(f"Part a: {sum(one)}")
     two = part_two()
-    print(len(two))
+    print(f"Part b: {two}")
 
 
 if __name__ == "__main__":
